@@ -26,12 +26,12 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import org.apache.commons.lang3.StringEscapeUtils;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -110,7 +110,7 @@ public class Verb {
      * @param tag the tag
      * @param body the body
      */
-    public Verb(String tag, String body) {
+    public Verb(final String tag, final String body) {
         this.tag = tag;
         this.body = body;
         this.attributes = new HashMap<String, String>();
@@ -124,7 +124,7 @@ public class Verb {
      * @return the verb
      * @throws TwiMLException the twiml exception
      */
-    public Verb append(Verb verb) throws TwiMLException {
+    public Verb append(final Verb verb) throws TwiMLException {
        if(this.allowedVerbs != null && this.allowedVerbs.contains(verb.getTag())) {
            this.children.add(verb);
            return verb;
@@ -150,15 +150,15 @@ public class Verb {
      */
     private String toXML(final boolean escape) {
         String xml = "<" + this.tag;
-        for (String key : attributes.keySet()) {
-            xml += " " + key + "=\"" + attributes.get(key) + "\"";
+        for (String key : this.attributes.keySet()) {
+            xml += " " + key + "=\"" + this.attributes.get(key) + "\"";
         }
         xml += ">";
         if(this.body != null) {
             final String body = escape? StringEscapeUtils.escapeXml(this.body): this.body;
             xml += body;
         }
-        for (Verb child : children){
+        for (Verb child : this.children){
             xml += child.toXML();
         }
         return xml += "</" + this.tag + ">";
@@ -194,8 +194,8 @@ public class Verb {
      * @param key the key
      * @param value the value
      */
-    public void set (String key, String value){
-       attributes.put(key,value);
+    public void set (final String key, final String value){
+       this.attributes.put(key,value);
     }
 
     /**

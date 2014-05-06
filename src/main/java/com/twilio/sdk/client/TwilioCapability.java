@@ -1,16 +1,24 @@
 package com.twilio.sdk.client;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
-import org.json.simple.JSONValue;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * This class represents a token that will grant someone access to resources
@@ -20,18 +28,18 @@ public class TwilioCapability {
 
 	@SuppressWarnings("serial")
 	public static class DomainException extends Exception {
-		public DomainException(String message) {
+		public DomainException(final String message) {
 			super(message);
 		}
 
-		public DomainException(Exception e) {
+		public DomainException(final Exception e) {
 			super(e);
 		}
 	}
 
-	private String accountSid;
-	private String authToken;
-	private List<String> scopes;
+	private final String accountSid;
+	private final String authToken;
+	private final List<String> scopes;
 
 	// Default Data
 	// private String defaultClientName = null;
@@ -43,29 +51,29 @@ public class TwilioCapability {
 	// Outgoing Paramater holding until generate token time
 	private boolean buildOutgoingScope = false;
 	private String appSid = null;
-	private String outgoingClientName = null;
+	private final String outgoingClientName = null;
 	private Map<String, String> outgoingParams = null;
 
 	/**
 	 * Create a new TwilioCapability with zero permissions. Next steps are to
 	 * grant access to resources by configuring this token through the functions
 	 * allowXXXX.
-	 * 
+	 *
 	 * @param accountSid
 	 *            the account sid to which this token is granted access
 	 * @param authToken
 	 *            the secret key used to sign the token. Note, this auth token
 	 *            is not visible to the user of the token.
 	 */
-	public TwilioCapability(String accountSid, String authToken) {
+	public TwilioCapability(final String accountSid, final String authToken) {
 		this.accountSid = accountSid;
 		this.authToken = authToken;
 		this.scopes = new ArrayList<String>();
 
 	}
 
-	private String buildScopeString(String serivce, String priviledge,
-			Map<String, String> params) {
+	private String buildScopeString(final String serivce, final String priviledge,
+			final Map<String, String> params) {
 
 		StringBuilder scope = new StringBuilder();
 
@@ -86,24 +94,24 @@ public class TwilioCapability {
 
 	/**
 	 * Allow the user of this token to make outgoing connections.
-	 * 
+	 *
 	 * @param appSid
 	 *            the application to which this token grants access
 	 */
-	public void allowClientOutgoing(String appSid) {
+	public void allowClientOutgoing(final String appSid) {
 		allowClientOutgoing(appSid, null);
 	}
 
 	/**
 	 * Allow the user of this token to make outgoing connections.
-	 * 
+	 *
 	 * @param appSid
 	 *            the application to which this token grants access
 	 * @param params
 	 *            signed parameters that the user of this token cannot
 	 *            overwrite.
 	 */
-	public void allowClientOutgoing(String appSid, Map<String, String> params) {
+	public void allowClientOutgoing(final String appSid, final Map<String, String> params) {
 		this.buildOutgoingScope = true;
 		this.outgoingParams = params;
 		this.appSid = appSid;
@@ -133,7 +141,7 @@ public class TwilioCapability {
 	//
 	// }
 
-	private String generateParamString(Map<String, String> params) {
+	private String generateParamString(final Map<String, String> params) {
 		List<String> keyValues = new ArrayList<String>();
 		for (String key : params.keySet()) {
 			String value = params.get(key);
@@ -156,10 +164,10 @@ public class TwilioCapability {
 	 * If the user of this token should be allowed to accept incoming
 	 * connections then configure the TwilioCapability through this method and
 	 * specify the client name.
-	 * 
+	 *
 	 * @param clientName
 	 */
-	public void allowClientIncoming(String clientName) {
+	public void allowClientIncoming(final String clientName) {
 		// Save the default client name
 		this.incomingClientName = clientName;
 		this.buildIncomingScope = true;
@@ -167,11 +175,11 @@ public class TwilioCapability {
 
 	/**
 	 * Allow the user of this token to access their event stream.
-	 * 
+	 *
 	 * @param filters
 	 *            key/value filters to apply to the event stream
 	 */
-	public void allowEventStream(Map<String, String> filters) {
+	public void allowEventStream(final Map<String, String> filters) {
 		Map<String, String> value = new LinkedHashMap<String, String>();
 		value.put("path", "/2010-04-01/Events");
 		if (filters != null) {
@@ -185,7 +193,7 @@ public class TwilioCapability {
 	/**
 	 * Generates a new token based on the credentials and permissions that
 	 * previously has been granted to this token.
-	 * 
+	 *
 	 * @return the newly generated token that is valid for 3600 seconds
 	 * @throws DomainException
 	 */
@@ -196,12 +204,12 @@ public class TwilioCapability {
 	/**
 	 * Generates a new token based on the credentials and permissions that
 	 * previously has been granted to this token.
-	 * 
+	 *
 	 * @param ttl the number of seconds before this token expires
 	 * @return the newly generated token that is valid for ttl seconds
 	 * @throws DomainException
 	 */
-	public String generateToken(long ttl) throws DomainException {
+	public String generateToken(final long ttl) throws DomainException {
 
 		// Build these scopes lazily when we generate tokens so we know
 		// if we have a default or incoming client name to use
@@ -225,7 +233,7 @@ public class TwilioCapability {
 		if (this.buildOutgoingScope) {
 			Map<String, String> values = new HashMap<String, String>();
 
-			values.put("appSid", appSid);
+			values.put("appSid", this.appSid);
 
 			// Outgoing takes precedence over any incoming name which
 			// takes precedence over the default client name. however,
@@ -263,7 +271,7 @@ public class TwilioCapability {
 		}
 	}
 
-	private static String jwtEncode(Map<String, Object> payload, String key)
+	private static String jwtEncode(final Map<String, Object> payload, final String key)
 			throws InvalidKeyException, NoSuchAlgorithmException,
 			UnsupportedEncodingException {
 
@@ -282,17 +290,19 @@ public class TwilioCapability {
 		return StringUtils.join(segments, ".");
 	}
 
-	private static String jsonEncode(Object object) {
-		String json = JSONValue.toJSONString(object);
+	private static String jsonEncode(final Object object) {
+	    ObjectMapper objectMapper = new ObjectMapper();
+	    ObjectNode convertValue = objectMapper.convertValue(object, ObjectNode.class);
+		String json = convertValue.textValue();
 		return json.replace("\\/", "/");
 	}
 
-	private static String encodeBase64(String data)
+	private static String encodeBase64(final String data)
 			throws UnsupportedEncodingException {
 		return encodeBase64(data.getBytes("UTF-8"));
 	}
 
-	private static String encodeBase64(byte[] data)
+	private static String encodeBase64(final byte[] data)
 			throws UnsupportedEncodingException {
 		String encodedString = new String(Base64.encodeBase64(data));
 		String safeString = encodedString.replace('+', '-').replace('/', '_')
@@ -302,7 +312,7 @@ public class TwilioCapability {
 
 	// see
 	// http://discussion.forum.nokia.com/forum/showthread.php?130974-Help-required-How-to-generate-a-MAC-(HMAC-SHA1)-with-Java
-	private static String sign(String data, String key)
+	private static String sign(final String data, final String key)
 			throws NoSuchAlgorithmException, InvalidKeyException,
 			UnsupportedEncodingException {
 		SecretKeySpec signingKey = new SecretKeySpec(key.getBytes("UTF-8"),
@@ -316,10 +326,10 @@ public class TwilioCapability {
 
 	/**
 	 * Example usage
-	 * 
+	 *
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		if (args.length < 2) {
 			System.out
 					.println("usage: java com.twilio.client.TwilioCapability accountSid authToken");
