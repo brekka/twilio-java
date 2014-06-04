@@ -4,7 +4,7 @@
 	<artifactId>twilio-java-sdk</artifactId>
 	<packaging>jar</packaging>
 	<name>twilio-java-sdk</name>
-	<version>3.4.4-brekka1</version>
+	<version>3.4.4-brekka2-SNAPSHOT</version>
 	<description>Java helper library for Twilio services</description>
 	<url>http://www.twilio.com</url>
 	<licenses>
@@ -18,7 +18,7 @@
 		<url>git@github.com:brekka/twilio-java.git</url>
 		<connection>scm:git:git@github.com:brekka/twilio-java.git</connection>
 		<developerConnection>scm:git:git@github.com:brekka/twilio-java.git</developerConnection>
-	  <tag>v3.4.4-brekka1</tag>
+	  <tag>HEAD</tag>
   </scm>
 	<developers>
 		<developer>
